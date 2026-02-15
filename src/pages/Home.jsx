@@ -4,6 +4,7 @@ import ConfirmModal from "../components/ConfirmModal";
 import LocationPicker from "../components/LocationPicker";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 // 🌍 Plant Location
 const PLANT_LAT = 16.531837;
@@ -101,6 +102,11 @@ export default function Home() {
 
     const distance = getDistanceInKm(PLANT_LAT, PLANT_LON, latitude, longitude);
     if (distance > 5) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Out of Range',
+        text: 'You are out of range to book order (5 km limit)',
+      });
       toast.error("You are out of range to book order (5 km limit)");
       return;
     }
