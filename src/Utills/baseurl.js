@@ -1,0 +1,10 @@
+export const BaseURL = "https://bhagiradhaswayamkrushibackend.onrender.com/api/"
+// export const BaseURL = "http://192.168.101.71:8089/api/"
+export const userOrder='Orders/addOrder'
+export const userLogin='auth/login'
+export const userRegister='auth/register'
+export const getAllOrders='orders'
+export const updateStatus='/update-status/'
+export const ordersByMobile='orders/user?mobile'
+export const orderupdatedstatus='orders/update-status/'
+export const updateuseractivestatus='users/update-active-status/'
