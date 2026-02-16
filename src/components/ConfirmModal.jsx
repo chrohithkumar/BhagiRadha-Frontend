@@ -33,7 +33,7 @@ export default function ConfirmModal({
       coolQty: cool,
       totalAmount: total,
       bookingType,
-      deliveryDate:
+      bookingDate:
         bookingType === "advance"
           ? deliveryDate
           : new Date().toISOString().split("T")[0],
