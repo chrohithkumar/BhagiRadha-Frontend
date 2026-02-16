@@ -225,6 +225,8 @@ export default function Home() {
         </button>
         <AdvanceBookingModal
           open={advanceModalOpen}
+          name={name}
+           number={mobileNumber}
           onClose={() => setAdvanceModalOpen(false)}
         />
 

@@ -3,9 +3,9 @@ import ConfirmModal from "../components/ConfirmModal";
 import LocationPicker from "../components/LocationPicker";
 import { toast } from "react-toastify";
 
-export default function AdvanceBookingModal({ open, onClose }) {
-    const [name, setName] = useState("");
-    const [mobile, setMobile] = useState("");
+export default function AdvanceBookingModal({ open,name,number, onClose }) {
+    const [name, setName] = useState(name || "");
+    const [mobile, setMobile] = useState(number || "");
     const [date, setDate] = useState("");
     const [normal, setNormal] = useState("");
     const [cool, setCool] = useState("");

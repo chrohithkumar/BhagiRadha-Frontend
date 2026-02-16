@@ -52,7 +52,7 @@ export default function ConfirmModal({
         }
       );
 
-      if (data?.message === "Order placed successfully") {
+      if (data?.message === "Order placed") {
         Swal.fire({
           title: "Success!",
           text:
