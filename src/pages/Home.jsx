@@ -1,10 +1,12 @@
-import { useEffect, useState ,useRef} from "react";
+import { useEffect, useState, useRef } from "react";
 import Card from "../components/Card";
 import ConfirmModal from "../components/ConfirmModal";
 import LocationPicker from "../components/LocationPicker";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import { PhoneCall } from 'lucide-react';
+import AdvanceBookingModal from "../pages/AdvanceBookingModal";
 
 // 🌍 Plant Location
 const PLANT_LAT = 16.531837;
@@ -26,7 +28,8 @@ function getDistanceInKm(lat1, lon1, lat2, lon2) {
 export default function Home() {
   const [normal, setNormal] = useState(0);
   const [cool, setCool] = useState(0);
-
+  const [bookingType, setBookingType] = useState("daily");
+  const [advanceModalOpen, setAdvanceModalOpen] = useState(false);
   const [name, setName] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [defaultAddress, setDefaultAddress] = useState("");
@@ -117,10 +120,25 @@ export default function Home() {
   const handleOrders = () => {
     navigate("/userorderhistory");
   }
+
+  const handlePhoneCall = () => {
+    window.location.href = `tel:+919951062449`;
+  };
+
+  const handleAdvanceOrders = () => {
+    setBookingType("advance");
+    setAdvanceModalOpen(true);
+  };
   return (
     <div className="min-h-screen bg-sky-50 p-6">
       {/* Logout Button */}
       <div className="flex justify-end mb-6 gap-x-4">
+        <button
+          onClick={handlePhoneCall}
+          className="inline-flex items-center justify-center px-1 py-1 rounded-xl bg-white text-sky-700 font-semibold border border-sky-600 shadow-sm hover:bg-sky-50 hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-sky-400"
+        >
+          <PhoneCall size={24} />
+        </button>
         <button
           onClick={handleOrders}
           className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-sky-700 font-semibold border border-sky-600 shadow-sm hover:bg-sky-50 hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-sky-400"
@@ -134,7 +152,15 @@ export default function Home() {
           Log Out
         </button>
       </div>
+      <div className="flex justify-end mb-6 gap-x-4">
+        <button
+          onClick={handleAdvanceOrders}
+          className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-sky-700 font-semibold border border-yellow-600 shadow-sm hover:bg-sky-50 hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-sky-400"
+        >
+          AdvanceBooking
+        </button>
 
+      </div>
 
       <div className="max-w-2xl mx-auto">
         <h1 className="text-4xl font-bold text-sky-700">PureDrop</h1>
@@ -197,6 +223,10 @@ export default function Home() {
         >
           Review Order
         </button>
+        <AdvanceBookingModal
+          open={advanceModalOpen}
+          onClose={() => setAdvanceModalOpen(false)}
+        />
 
         {/* Confirm Modal */}
         <ConfirmModal

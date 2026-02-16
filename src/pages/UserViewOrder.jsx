@@ -66,7 +66,7 @@ export default function OrderHistory() {
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-sky-700">My Order History</h1>
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/home')}
           className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-sky-700 font-semibold border border-sky-600 shadow-sm hover:bg-sky-50 hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-sky-400"
         >
           Back
