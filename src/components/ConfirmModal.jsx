@@ -17,7 +17,9 @@ export default function ConfirmModal({
   bookingType = "daily",
   deliveryDate = null,
   onSuccess,
-}) {
+}) 
+
+{
   if (!open) return null;
 
   const handleConfirm = async () => {
@@ -37,12 +39,17 @@ export default function ConfirmModal({
           : new Date().toISOString().split("T")[0],
     };
 
-    console.log("Order Data:", orderData); // Debug log
-
+    const token = localStorage.getItem("token");
+  
     try {
       const { data } = await axios.post(
         `${BaseURL}${userOrder}`,
-        orderData
+        orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       if (data?.message === "Order placed successfully") {
