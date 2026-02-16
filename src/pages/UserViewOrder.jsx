@@ -19,10 +19,14 @@ export default function OrderHistory() {
 
   const fetchOrders = async () => {
     if (!mobileNumber) return;
+    const token = localStorage.getItem("token");
     setLoading(true);
     try {
       const res = await fetch(`${BaseURL}${ordersByMobile}=${mobileNumber}`, {
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
       });
       if (!res.ok) throw new Error("Failed to fetch orders");
       let data = await res.json();
