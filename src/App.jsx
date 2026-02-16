@@ -26,6 +26,8 @@ export default function App() {
         draggable
         pauseOnHover
         theme="colored"
+          style={{ zIndex: 10000 }}   // 🔥 THIS IS THE FIX
+
       />
 
      <Routes>
