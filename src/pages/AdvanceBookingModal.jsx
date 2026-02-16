@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import ConfirmModal from "../components/ConfirmModal";
 import LocationPicker from "../components/LocationPicker";
 import { toast } from "react-toastify";
 
-export default function AdvanceBookingModal({ open,defaultName,number, onClose }) {
-    const [name, setName] = useState(defaultName || "");
-    const [mobile, setMobile] = useState(number || "");
+export default function AdvanceBookingModal({ open,onClose }) {
+
+    const [name, setName] = useState( "");
+    const [mobile, setMobile] = useState( "");
     const [date, setDate] = useState("");
     const [normal, setNormal] = useState("");
     const [cool, setCool] = useState("");
@@ -13,6 +14,11 @@ export default function AdvanceBookingModal({ open,defaultName,number, onClose }
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
     const [confirmOpen, setConfirmOpen] = useState(false);
+
+    useEffect(() => {
+        setName(localStorage.getItem("userName") || "");
+        setMobile(localStorage.getItem("userMobile") || "");
+    }, []);
 
     const NORMAL_PRICE = 20;
     const COOL_PRICE = 40;
