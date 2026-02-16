@@ -323,6 +323,7 @@ export default function AdminDashboard() {
               <th>Normal</th>
               <th>Cool</th>
               <th>Total</th>
+              <th>Booking Type</th>
               <th>Status</th>
               <th className="text-center w-60">Actions</th>
               <th>View</th>
@@ -337,6 +338,7 @@ export default function AdminDashboard() {
                   <td>{order.normalQty}</td>
                   <td>{order.coolQty}</td>
                   <td>₹{order.totalAmount}</td>
+                  <td className="capitalize">{order.bookingType}</td>
                   <td>
                     {order.status === "Pending" && <span className="text-yellow-600 font-semibold">Pending</span>}
                     {order.status === "Completed" && <span className="text-green-600 font-semibold">Completed</span>}
@@ -396,6 +398,7 @@ export default function AdminDashboard() {
                 {order.status === "Pending" && <span className="text-yellow-600">Pending</span>}
                 {order.status === "Completed" && <span className="text-green-600">Completed</span>}
                 {order.status === "Cancelled" && <span className="text-red-600">Cancelled</span>}
+                <p className="capitalize">Booking Type {order.bookingType}</p>
               </div>
               <p><strong>Mobile:</strong> {order.mobileNumber}</p>
               <p><strong>Normal Qty:</strong> {order.normalQty}</p>
@@ -450,6 +453,7 @@ export default function AdminDashboard() {
               <p><strong>Mobile:</strong> {selectedOrder.mobileNumber}</p>
               <p><strong>Normal Qty:</strong> {selectedOrder.normalQty}</p>
               <p><strong>Cool Qty:</strong> {selectedOrder.coolQty}</p>
+              <p><strong>Booking Type:</strong> {selectedOrder.bookingType}</p>
               <p><strong>Address:</strong> {selectedOrder.address}</p>
               <p><strong>Total:</strong> ₹{selectedOrder.totalAmount}</p>
             </div>

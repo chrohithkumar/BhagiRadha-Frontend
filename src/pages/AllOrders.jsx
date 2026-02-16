@@ -277,6 +277,7 @@ export default function AllOrders() {
               <th>Normal</th>
               <th>Cool</th>
               <th>Total</th>
+              <th>Booking Type</th>
               <th>Status</th>
               <th className="text-center w-60">Actions</th>
               <th>View</th>
@@ -291,6 +292,7 @@ export default function AllOrders() {
                   <td>{order.normalQty}</td>
                   <td>{order.coolQty}</td>
                 <td>₹{order.totalAmount}</td>
+                  <td className="capitalize">{order.bookingType}</td>
                 <td>
                   {order.status === "Pending" && <span className="text-yellow-600">Pending</span>}
                   {order.status === "Completed" && <span className="text-green-600">Completed</span>}
@@ -357,7 +359,7 @@ export default function AllOrders() {
             <p><strong>Normal Qty:</strong> {order.normalQty}</p>
             <p><strong>Cool Qty:</strong> {order.coolQty}</p>
             <p><strong>Total:</strong> ₹{order.totalAmount}</p>
-
+            <p><strong>Booking Type:</strong> {order.bookingType}</p>
             <div className="flex flex-wrap gap-2 mt-3">
               {order.status === "Pending" && (
                 <>
@@ -412,6 +414,7 @@ export default function AllOrders() {
               <p><strong>Cool Qty:</strong> {selectedOrder.coolQty}</p>
               <p><strong>Address:</strong> {selectedOrder.address}</p>
               <p><strong>Total:</strong> ₹{selectedOrder.totalAmount}</p>
+              <p><strong>Booking Type:</strong> {selectedOrder.bookingType}</p>
             </div>
 
             <div className="mt-6 flex gap-3">
