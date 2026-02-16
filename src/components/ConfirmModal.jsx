@@ -15,7 +15,7 @@ export default function ConfirmModal({
   latitude,
   longitude,
   bookingType = "daily",
-  deliveryDate = null,
+  deliveryDate,
   onSuccess,
 }) 
 

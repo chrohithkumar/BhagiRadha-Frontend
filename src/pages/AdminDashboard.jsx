@@ -398,12 +398,14 @@ export default function AdminDashboard() {
                 {order.status === "Pending" && <span className="text-yellow-600">Pending</span>}
                 {order.status === "Completed" && <span className="text-green-600">Completed</span>}
                 {order.status === "Cancelled" && <span className="text-red-600">Cancelled</span>}
-                <p className="capitalize">Booking Type {order.bookingType}</p>
               </div>
+
               <p><strong>Mobile:</strong> {order.mobileNumber}</p>
               <p><strong>Normal Qty:</strong> {order.normalQty}</p>
               <p><strong>Cool Qty:</strong> {order.coolQty}</p>
               <p><strong>Total:</strong> ₹{order.totalAmount}</p>
+              <p className="capitalize">Booking Type {order.bookingType}</p>
+
               <div className="flex flex-wrap gap-2 mt-3">
                 {order.status == "Pending" && (
                   <>
@@ -454,6 +456,7 @@ export default function AdminDashboard() {
               <p><strong>Normal Qty:</strong> {selectedOrder.normalQty}</p>
               <p><strong>Cool Qty:</strong> {selectedOrder.coolQty}</p>
               <p><strong>Booking Type:</strong> {selectedOrder.bookingType}</p>
+              <p><strong>Booking Date:</strong> {selectedOrder.status}</p>
               <p><strong>Address:</strong> {selectedOrder.address}</p>
               <p><strong>Total:</strong> ₹{selectedOrder.totalAmount}</p>
             </div>
