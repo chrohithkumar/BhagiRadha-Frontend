@@ -241,6 +241,7 @@ export default function Home() {
           address={fullAddress}
           latitude={latitude}
           longitude={longitude}
+          bookingType="daily"
         />
       </div>
     </div>
