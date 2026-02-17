@@ -207,11 +207,7 @@ export default function Home() {
               setSelectedAddressOption("default");
             }}
           />
-          {address && (
-            <div className="mt-2 p-2 bg-white border rounded-lg text-sm">
-              <strong>Area:</strong> {address}
-            </div>
-          )}
+         
         </div>
 
         {/* Review Button */}

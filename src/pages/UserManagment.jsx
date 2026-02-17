@@ -366,9 +366,15 @@ export default function UserManagement() {
 
     const fetchUserAndOrders = async () => {
         if (!mobile) return toast.warning("Enter mobile number");
+        const token = localStorage.getItem("token");
         setLoading(true);
         try {
-            const ordersRes = await fetch(`${BaseURL}${ordersByMobile}=${mobile}`);
+            const ordersRes = await fetch(`${BaseURL}${ordersByMobile}=${mobile}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
             if (!ordersRes.ok) throw new Error("Failed to fetch orders");
             let orderData = await ordersRes.json();
             setUser(orderData);
