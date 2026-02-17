@@ -66,8 +66,7 @@ export default function ConfirmModal({
         toast.success(
           bookingType === "advance"
             ? "Advance order scheduled successfully! 🎉"
-            : "Order placed successfully! 🎉",
-          { autoClose: 3000 }
+            : "Order placed successfully! 🎉"
         );
 
         onSuccess && onSuccess();

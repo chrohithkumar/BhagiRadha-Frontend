@@ -7,8 +7,9 @@ export default function OrderHistory() {
   const [orders, setOrders] = useState([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("All");
   const [loading, setLoading] = useState(false);
+  const [bookingTypeFilter, setBookingTypeFilter] = useState("All");
 
   // ✅ Pagination States
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,10 +21,11 @@ export default function OrderHistory() {
   const fetchOrders = async () => {
     if (!mobileNumber) return;
     const token = localStorage.getItem("token");
+    console.log(token);
     setLoading(true);
     try {
       const res = await fetch(`${BaseURL}${ordersByMobile}=${mobileNumber}`, {
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
@@ -33,16 +35,25 @@ export default function OrderHistory() {
 
       if (fromDate)
         data = data.filter(
-          (o) => new Date(o.createdAt) >= new Date(fromDate)
+          (o) =>
+            new Date(o.createdAt).toISOString().split("T")[0] >= fromDate
         );
 
       if (toDate)
         data = data.filter(
-          (o) => new Date(o.createdAt) <= new Date(toDate)
+          (o) =>
+            new Date(o.createdAt).toISOString().split("T")[0] <= toDate
         );
 
-      if (statusFilter !== "all")
-        data = data.filter((o) => o.status === parseInt(statusFilter));
+
+      if (bookingTypeFilter !== "All")
+        data = data.filter(
+          (o) => o.bookingType.toLowerCase() === bookingTypeFilter
+        );
+
+
+      if (statusFilter !== "All")
+        data = data.filter((o) => o.status == statusFilter);
 
       setOrders(data);
       setCurrentPage(1); // reset page on filter change
@@ -56,7 +67,7 @@ export default function OrderHistory() {
 
   useEffect(() => {
     fetchOrders();
-  }, [fromDate, toDate, statusFilter]);
+  }, []);
 
   // ✅ Pagination Logic
   const indexOfLast = currentPage * ordersPerPage;
@@ -80,24 +91,38 @@ export default function OrderHistory() {
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-6 items-end">
         {[
+
           { label: "From", value: fromDate, set: setFromDate, type: "date" },
           { label: "To", value: toDate, set: setToDate, type: "date" },
-          { label: "Status", value: statusFilter, set: setStatusFilter, type: "select" },
+          { label: "Status", value: statusFilter, set: setStatusFilter, type: "select-status" },
+          { label: "Booking Type", value: bookingTypeFilter, set: setBookingTypeFilter, type: "select-booking" },
+
+
         ].map((filter, idx) => (
           <div key={idx} className="flex flex-col w-full md:w-1/4">
             <label className="block text-sm font-semibold mb-1">
               {filter.label}
             </label>
-            {filter.type === "select" ? (
+            {filter.type === "select-status" ? (
               <select
                 value={filter.value}
                 onChange={(e) => filter.set(e.target.value)}
                 className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-sky-400 shadow-sm"
               >
-                <option value="all">All</option>
-                <option value="0">Pending</option>
-                <option value="1">Completed</option>
-                <option value="2">Cancelled</option>
+                <option value="All">All</option>
+                <option value="Pending">Pending</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            ) : filter.type === "select-booking" ? (
+              <select
+                value={filter.value}
+                onChange={(e) => filter.set(e.target.value)}
+                className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-sky-400 shadow-sm"
+              >
+                <option value="All">All</option>
+                <option value="daily">Daily</option>
+                <option value="advance">Advance</option>
               </select>
             ) : (
               <input
@@ -130,7 +155,8 @@ export default function OrderHistory() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Date</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold">Booking Date</th>
+                <th className="px-6 py-3 text-center text-sm font-semibold">Booking Type</th>
                 <th className="px-6 py-3 text-center text-sm font-semibold">Normal Qty</th>
                 <th className="px-6 py-3 text-center text-sm font-semibold">Cooling Qty</th>
                 <th className="px-6 py-3 text-right text-sm font-semibold">Total</th>
@@ -141,8 +167,9 @@ export default function OrderHistory() {
               {currentOrders.map((order) => (
                 <tr key={order.id} className="hover:bg-sky-50 transition">
                   <td className="px-6 py-3 text-sm">
-                    {new Date(order.createdAt).toLocaleDateString()}
+                    {new Date(order.bookingDate).toLocaleDateString("en-GB")}
                   </td>
+                  <td className="px-6 py-3 text-center">{order.bookingType}</td>
                   <td className="px-6 py-3 text-center">{order.normalQty}</td>
                   <td className="px-6 py-3 text-center">{order.coolQty}</td>
                   <td className="px-6 py-3 text-right">₹{order.totalAmount}</td>
@@ -160,8 +187,12 @@ export default function OrderHistory() {
           {currentOrders.map((order) => (
             <div key={order.id} className="bg-white p-5 rounded-xl shadow-md">
               <div className="flex justify-between mb-2">
-                <span>Date:</span>
-                <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                <span>Booking Date:</span>
+                <span>{new Date(order.bookingDate).toLocaleDateString("en-GB")}</span>
+              </div>
+              <div className="flex justify-between mb-2">
+                <span>Booking Type:</span>
+                <span>{order.bookingType}</span>
               </div>
               <div className="flex justify-between mb-2">
                 <span>Normal Qty:</span>
@@ -199,11 +230,10 @@ export default function OrderHistory() {
             <button
               key={index}
               onClick={() => setCurrentPage(index + 1)}
-              className={`px-4 py-2 rounded ${
-                currentPage === index + 1
-                  ? "bg-sky-600 text-white"
-                  : "bg-gray-200"
-              }`}
+              className={`px-4 py-2 rounded ${currentPage === index + 1
+                ? "bg-sky-600 text-white"
+                : "bg-gray-200"
+                }`}
             >
               {index + 1}
             </button>

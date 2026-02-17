@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import {
   MapContainer,
@@ -41,9 +39,9 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
@@ -178,11 +176,17 @@ export default function LocationPicker({
   }
 
   useEffect(() => {
-    if (initialPosition) {
-      setPosition(initialPosition);
-      setUserSelectedCenter(initialPosition);
+    if (
+      initialPosition &&
+      initialPosition.length === 2 &&
+      typeof initialPosition[0] === "number" &&
+      typeof initialPosition[1] === "number"
+    ) {
+      updateLocation(initialPosition[0], initialPosition[1]);
     }
   }, [initialPosition]);
+
+
 
   return (
     <div className="bg-white rounded-xl shadow p-4 space-y-3">
@@ -240,6 +244,7 @@ export default function LocationPicker({
         </MapContainer>
       </div>
 
+
       {position && !deliveryError && (
         <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 text-sm">
           <p className="font-semibold text-sky-700 mb-1">
@@ -247,8 +252,7 @@ export default function LocationPicker({
           </p>
           <p className="text-gray-600">
             {displayName ||
-              selectedAddress ||
-              "Location selected (address unavailable)"}
+              "Location Not selected or (address unavailable)"}
           </p>
         </div>
       )}

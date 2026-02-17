@@ -25,7 +25,6 @@ useEffect(() => {
             navigate("/home", { replace: true });
         }
 
-        toast.warning("Please logout before exit");
     }
 }, []);
 
