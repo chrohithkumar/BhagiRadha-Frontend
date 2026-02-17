@@ -1,5 +1,5 @@
 import { useState, useEffect, use } from "react";
-import { BaseURL, getAllOrders,orderupdatedstatus } from "../Utills/baseurl";
+import { BaseURL, getAllOrders, orderupdatedstatus } from "../Utills/baseurl";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
@@ -8,6 +8,7 @@ export default function AllOrders() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [bookingTypeFilter, setBookingTypeFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [updated, setUpdated] = useState(false);
@@ -110,6 +111,12 @@ export default function AllOrders() {
     );
   }
 
+  if (bookingTypeFilter !== "all") {
+    filtered = filtered.filter(
+      (o) => o.bookingType === bookingTypeFilter
+    );
+  }
+
   if (dateFilter) {
     filtered = filtered.filter(
       (o) => o.createdAt?.split("T")[0] === dateFilter
@@ -189,7 +196,7 @@ export default function AllOrders() {
             <button onClick={() => navigate("/admin/performance")} className="hover:text-blue-600">
               Performance
             </button>
-            
+
             <button onClick={() => navigate("/admin/user-management")} className="hover:text-blue-600">
               User Management
             </button>
@@ -239,7 +246,18 @@ export default function AllOrders() {
           <option value="Completed">Completed</option>
           <option value="Cancelled">Cancelled</option>
         </select>
-
+        <select
+          value={bookingTypeFilter}
+          onChange={(e) => {
+            setBookingTypeFilter(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="border p-2 rounded w-full md:w-60"
+        >
+          <option value="all">Booking Type</option>
+          <option value="daily">Daily</option>
+          <option value="advance">Advance</option>
+        </select>
         <input
           type="date"
           className="border p-2 rounded w-full md:w-48"
@@ -291,48 +309,48 @@ export default function AllOrders() {
                   <td>{order.mobileNumber}</td>
                   <td>{order.normalQty}</td>
                   <td>{order.coolQty}</td>
-                <td>₹{order.totalAmount}</td>
+                  <td>₹{order.totalAmount}</td>
                   <td className="capitalize">{order.bookingType}</td>
-                <td>
-                  {order.status === "Pending" && <span className="text-yellow-600">Pending</span>}
-                  {order.status === "Completed" && <span className="text-green-600">Completed</span>}
-                  {order.status === "Cancelled" && <span className="text-red-600">Cancelled</span>}
-                </td>
-                <td className="text-center">
-                  <div className="flex gap-1 justify-center">
-                    <button
-                      onClick={() => updateStatus(order.id, "Completed", order.name)}
-                      disabled={order.status !== "Pending"}
-                      className={`px-3 py-1 rounded text-sm text-white ${order.status === "Pending"
-                        ? "bg-green-500"
-                        : "bg-green-300 cursor-not-allowed"
-                        }`}
-                    >
-                      {order.status === "Completed" ? "Completed" : "Complete"}
-                    </button>
+                  <td>
+                    {order.status === "Pending" && <span className="text-yellow-600">Pending</span>}
+                    {order.status === "Completed" && <span className="text-green-600">Completed</span>}
+                    {order.status === "Cancelled" && <span className="text-red-600">Cancelled</span>}
+                  </td>
+                  <td className="text-center">
+                    <div className="flex gap-1 justify-center">
+                      <button
+                        onClick={() => updateStatus(order.id, "Completed", order.name)}
+                        disabled={order.status !== "Pending"}
+                        className={`px-3 py-1 rounded text-sm text-white ${order.status === "Pending"
+                          ? "bg-green-500"
+                          : "bg-green-300 cursor-not-allowed"
+                          }`}
+                      >
+                        {order.status === "Completed" ? "Completed" : "Complete"}
+                      </button>
 
+                      <button
+                        onClick={() => updateStatus(order.id, "Cancelled", order.name)}
+                        disabled={order.status !== "Pending"}
+                        className={`px-3 py-1 rounded text-sm text-white ${order.status === "Pending"
+                          ? "bg-red-500"
+                          : "bg-red-300 cursor-not-allowed"
+                          }`}
+                      >
+                        {order.status === "Cancelled" ? "Cancelled" : "Cancel"}
+                      </button>
+                    </div>
+                  </td>
+                  <td>
                     <button
-                      onClick={() => updateStatus(order.id, "Cancelled", order.name)}
-                      disabled={order.status !== "Pending"}
-                      className={`px-3 py-1 rounded text-sm text-white ${order.status === "Pending"
-                        ? "bg-red-500"
-                        : "bg-red-300 cursor-not-allowed"
-                        }`}
+                      onClick={() => setSelectedOrder(order)}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded text-sm"
                     >
-                      {order.status === "Cancelled" ? "Cancelled" : "Cancel"}
+                      View
                     </button>
-                  </div>
-                </td>
-                <td>
-                  <button
-                    onClick={() => setSelectedOrder(order)}
-                    className="bg-yellow-500 text-white px-3 py-1 rounded text-sm"
-                  >
-                    View
-                  </button>
-                </td>
-              </tr>
-            ))):(
+                  </td>
+                </tr>
+              ))) : (
               <tr>
                 <td colSpan="9" className="text-center py-6 text-gray-500">
                   No orders found.
@@ -346,7 +364,7 @@ export default function AllOrders() {
       {/* ================= MOBILE CARDS ================= */}
 
       <div className="grid gap-4 lg:hidden">
-        {currentOrders.length>0? (currentOrders.map((order) => (
+        {currentOrders.length > 0 ? (currentOrders.map((order) => (
           <div key={order.id} className="bg-white rounded-xl shadow p-4">
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-bold text-lg">{order.name}</h3>
@@ -386,7 +404,7 @@ export default function AllOrders() {
               </button>
             </div>
           </div>
-        ))):(
+        ))) : (
           <div className="text-center py-6 text-gray-500">
             No orders found.
           </div>
@@ -415,6 +433,7 @@ export default function AllOrders() {
               <p><strong>Address:</strong> {selectedOrder.address}</p>
               <p><strong>Total:</strong> ₹{selectedOrder.totalAmount}</p>
               <p><strong>Booking Type:</strong> {selectedOrder.bookingType}</p>
+              <p><strong>Booking Date:</strong> {selectedOrder.bookingType == 'advance' ? selectedOrder.advanceBookingDate : selectedOrder.createdAt}</p>
             </div>
 
             <div className="mt-6 flex gap-3">

@@ -12,7 +12,7 @@ export default function AdminDashboard() {
   const [previousOrderCount, setPreviousOrderCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 5;
-
+  const [bookingTypeFilter, setBookingTypeFilter] = useState("all");
   const audioRef = useRef(null);
   const navigate = useNavigate();
   const prevLastIdRef = useRef(null);
@@ -183,11 +183,17 @@ export default function AdminDashboard() {
     );
   }
 
-  // Filtered orders
-  const filteredOrders =
-    statusFilter === "all"
-      ? data
-      : data.filter((o) => o.status === statusFilter);
+ const filteredOrders =
+  statusFilter === "all" && bookingTypeFilter === "all"
+    ? data
+    : data.filter((o) => {
+        const statusMatch = statusFilter === "all" || o.status.toLowerCase() === statusFilter.toLowerCase();
+        const bookingTypeMatch =
+          bookingTypeFilter === "all" ||
+          o.bookingType.trim().toLowerCase() === bookingTypeFilter.trim().toLowerCase();
+        return statusMatch && bookingTypeMatch;
+      });
+
 
   /* ================= PAGINATION ================= */
   const indexOfLast = currentPage * ordersPerPage;
@@ -270,6 +276,15 @@ export default function AdminDashboard() {
           <option value="Completed">Completed</option>
           <option value="Cancelled">Cancelled</option>
         </select>
+        <select
+          value={bookingTypeFilter}
+          onChange={(e) => setBookingTypeFilter(e.target.value)}
+          className="border p-2 rounded w-full md:w-60"
+        >
+          <option value="all">Booking Type</option>
+          <option value="daily">Daily</option>
+          <option value="advance">Advance</option>
+        </select>
       </div>
 
       <div className="mobile-view mb-4">
@@ -284,6 +299,16 @@ export default function AdminDashboard() {
             <option value="Completed">Completed</option>
             <option value="Cancelled">Cancelled</option>
           </select>
+
+           <select
+          value={bookingTypeFilter}
+          onChange={(e) => setBookingTypeFilter(e.target.value)}
+          className="border p-2 rounded w-full md:w-60"
+        >
+          <option value="all">Booking Type</option>
+          <option value="daily">Daily</option>
+          <option value="advance">Advance</option>
+        </select>
 
           <div className="flex gap-2">
             <button
@@ -456,7 +481,7 @@ export default function AdminDashboard() {
               <p><strong>Normal Qty:</strong> {selectedOrder.normalQty}</p>
               <p><strong>Cool Qty:</strong> {selectedOrder.coolQty}</p>
               <p><strong>Booking Type:</strong> {selectedOrder.bookingType}</p>
-              <p><strong>Booking Date:</strong> {selectedOrder.status}</p>
+              <p><strong>Booking Date:</strong> {selectedOrder.bookingDate}</p>
               <p><strong>Address:</strong> {selectedOrder.address}</p>
               <p><strong>Total:</strong> ₹{selectedOrder.totalAmount}</p>
             </div>
