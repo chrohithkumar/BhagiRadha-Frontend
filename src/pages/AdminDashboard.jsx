@@ -276,6 +276,7 @@ export default function AdminDashboard() {
           <option value="Completed">Completed</option>
           <option value="Cancelled">Cancelled</option>
         </select>
+        
         <select
           value={bookingTypeFilter}
           onChange={(e) => setBookingTypeFilter(e.target.value)}
@@ -299,11 +300,11 @@ export default function AdminDashboard() {
             <option value="Completed">Completed</option>
             <option value="Cancelled">Cancelled</option>
           </select>
-
+            
            <select
           value={bookingTypeFilter}
           onChange={(e) => setBookingTypeFilter(e.target.value)}
-          className="border p-2 rounded w-full md:w-60"
+          className="border p-2  rounded w-full md:w-60"
         >
           <option value="all">Booking Type</option>
           <option value="daily">Daily</option>
