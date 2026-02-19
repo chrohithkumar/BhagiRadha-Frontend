@@ -121,9 +121,7 @@ export default function Home() {
     navigate("/userorderhistory");
   }
 
-  const handlePhoneCall = () => {
-    window.location.href = `tel:+919951062449`;
-  };
+
 
   const handleAdvanceOrders = () => {
     setBookingType("advance");
@@ -131,14 +129,14 @@ export default function Home() {
   };
   return (
     <div className="min-h-screen bg-sky-50 p-6">
-      {/* Logout Button */}
       <div className="flex justify-end mb-6 gap-x-4">
-        <button
-          onClick={handlePhoneCall}
+        <a
+          href="tel:+919951062449"
           className="inline-flex items-center justify-center px-1 py-1 rounded-xl bg-white text-sky-700 font-semibold border border-sky-600 shadow-sm hover:bg-sky-50 hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-sky-400"
         >
           <PhoneCall size={24} />
-        </button>
+        </a>
+
         <button
           onClick={handleOrders}
           className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-sky-700 font-semibold border border-sky-600 shadow-sm hover:bg-sky-50 hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-sky-400"
@@ -207,7 +205,7 @@ export default function Home() {
               setSelectedAddressOption("default");
             }}
           />
-         
+
         </div>
 
         {/* Review Button */}
