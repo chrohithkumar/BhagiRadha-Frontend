@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { BaseURL, userRegister } from "../../Utills/baseurl";
 import { toast, ToastContainer } from "react-toastify";
+
 export default function Register() {
     const navigate = useNavigate();
 
@@ -66,65 +67,53 @@ export default function Register() {
 
             const data = await response.json();
 
-
             if (data.message === "Registration successful") {
-                toast.success("Registration successful! Please login.", { autoClose: 5000 }); // 5 seconds
-
+                toast.success("Registration successful! Please login.", { autoClose: 5000 });
 
                 setTimeout(() => {
                     navigate("/login");
-                }, 1000); 
+                }, 2000);
             } else {
                 toast.error(data.message || "Registration failed", { autoClose: 5000 });
             }
-
         } catch (err) {
             console.error(err);
             toast.error("Something went wrong. Try again.");
         } finally {
-            setLoading(false); // stop loader
+            setLoading(false);
         }
     };
 
-
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 via-cyan-300 to-blue-600">
-            <ToastContainer position="top-right" autoClose={3000} />
+            <ToastContainer position="top-right" autoClose={5000} />
+
             <div className="w-full max-w-md rounded-2xl p-8">
-
-
                 <div className="flex flex-col items-center mb-6">
-
                     <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-2xl shadow-lg">
                         💧
                     </div>
 
-                    {/* PureDrop Title */}
                     <h1 className="text-3xl font-bold text-blue-600 mt-3">PureDrop</h1>
                     <p className="text-gray-500 text-sm">Fresh water delivered</p>
 
-                    {/* Shop Name Highlighted */}
                     <div className="bg-lightblue-600 rounded-lg px-4 py-2 mt-2">
                         <p className="text-red-500 font-extrabold text-center text-lg">
                             భగీరధ స్వయం క్రుషి వాటర్ ప్లాంట్
                         </p>
                     </div>
+
                     <p className="text-gray-900 font-semibold text-center mt-1">
                         ప్రొ: సూరిబాబు
                     </p>
 
-
-                    {/* Optional Contact Info */}
                     <p className="text-gray-800 text-sm mt-1 text-center">
                         ఫోన్: 9951062449
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-
-                    {/* First row: Name + Mobile */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Full Name */}
                         <div>
                             <label className="block text-sm font-medium mb-1">Full Name</label>
                             <input
@@ -140,7 +129,6 @@ export default function Register() {
                             )}
                         </div>
 
-                        {/* Mobile Number */}
                         <div>
                             <label className="block text-sm font-medium mb-1">Mobile Number</label>
                             <input
@@ -157,9 +145,7 @@ export default function Register() {
                         </div>
                     </div>
 
-                    {/* Second row: Password + Confirm Password */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Password */}
                         <div>
                             <label className="block text-sm font-medium mb-1">Password</label>
                             <div className="relative">
@@ -183,7 +169,6 @@ export default function Register() {
                             )}
                         </div>
 
-                        {/* Confirm Password */}
                         <div>
                             <label className="block text-sm font-medium mb-1">Confirm Password</label>
                             <div className="relative">
@@ -208,7 +193,6 @@ export default function Register() {
                         </div>
                     </div>
 
-                    {/* Address full width */}
                     <div>
                         <label className="block text-sm font-medium mb-1">Full Address</label>
                         <textarea
@@ -224,15 +208,41 @@ export default function Register() {
                         )}
                     </div>
 
-                    {/* Register Button */}
+                    {/* 🔥 Updated Register Button with Loader */}
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+                        disabled={loading}
+                        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2"
                     >
-                        Register
+                        {loading ? (
+                            <>
+                                <svg
+                                    className="animate-spin h-5 w-5 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle
+                                        className="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v8z"
+                                    ></path>
+                                </svg>
+                                Registering...
+                            </>
+                        ) : (
+                            "Register"
+                        )}
                     </button>
 
-                    {/* Login Link */}
                     <p className="text-center text-sm text-white-600 mt-2">
                         Already registered?{" "}
                         <span
@@ -243,7 +253,6 @@ export default function Register() {
                         </span>
                     </p>
                 </form>
-
             </div>
         </div>
     );
