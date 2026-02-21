@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import OrderHistory from "./pages/UserViewOrder";
 import UserManagement from "./pages/UserManagment";
 import PrivacyPolicy from "./pages/privacypolicy";
+import DeleteAccount from "./pages/DeleteAccount";
 export default function App() {
   return (
     <>
@@ -36,6 +37,7 @@ export default function App() {
   <Route path="/login" element={<Login />} />
   <Route path="/register" element={<Register />} />
   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+  <Route path="/delete-account" element={<DeleteAccount />} />
   <Route path="/" element={<Navigate to="/login" replace />} />
 
   {/* User protected route */}
