@@ -9,7 +9,6 @@ export default function ProtectedRoute({ children, allowedTypes = [] }) {
   // Not logged in
   if (!token) return <Navigate to="/login" replace />;
 
-  // Logged in but not allowed type (case-insensitive)
   if (
     allowedTypes.length > 0 &&
     !allowedTypes.some(type => type.toLowerCase() === (userType || "").toLowerCase())
