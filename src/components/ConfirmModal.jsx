@@ -1,3 +1,7 @@
+
+
+
+// import React, { useState } from "react";
 // import axios from "axios";
 // import { BaseURL, userOrder } from "../Utills/baseurl";
 // import { toast } from "react-toastify";
@@ -14,15 +18,19 @@
 //   total,
 //   latitude,
 //   longitude,
-//   bookingType ,
-//   deliveryDate=null,
+//   bookingType,
+//   deliveryDate = null,
 //   onSuccess,
-// }) 
+// }) {
+//   const [loading, setLoading] = useState(false);
 
-// {
 //   if (!open) return null;
 
 //   const handleConfirm = async () => {
+//     if (loading) return; // 🔒 Prevent double click
+
+//     setLoading(true);
+
 //     const orderData = {
 //       name,
 //       mobileNumber: number,
@@ -40,7 +48,7 @@
 //     };
 
 //     const token = localStorage.getItem("token");
-  
+
 //     try {
 //       const { data } = await axios.post(
 //         `${BaseURL}${userOrder}`,
@@ -69,7 +77,7 @@
 //             : "Order placed successfully! 🎉"
 //         );
 
-//         onSuccess && onSuccess();
+//         if (onSuccess) onSuccess();
 //         onClose();
 //       } else {
 //         Swal.fire({
@@ -81,8 +89,10 @@
 //         toast.error("Order failed. Please try again ❌");
 //       }
 //     } catch (error) {
-//       toast.error("Something went wrong! 🚨");
 //       console.error(error);
+//       toast.error("Something went wrong! 🚨");
+//     } finally {
+//       setLoading(false); // ✅ Always stop loader
 //     }
 //   };
 
@@ -141,23 +151,29 @@
 //         <div className="flex gap-3 mt-6">
 //           <button
 //             onClick={onClose}
-//             className="flex-1 border border-gray-300 hover:border-gray-400 rounded-xl py-2 font-medium text-gray-700 hover:bg-gray-50 transition"
+//             disabled={loading}
+//             className="flex-1 border border-gray-300 hover:border-gray-400 rounded-xl py-2 font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50"
 //           >
 //             Cancel
 //           </button>
 
 //           <button
 //             onClick={handleConfirm}
-//             className="flex-1 bg-sky-600 hover:bg-sky-700 text-white rounded-xl py-2 font-medium transition shadow-md hover:shadow-lg"
+//             disabled={loading}
+//             className={`flex-1 rounded-xl py-2 font-medium transition shadow-md
+//               ${
+//                 loading
+//                   ? "bg-sky-400 cursor-not-allowed text-white"
+//                   : "bg-sky-600 hover:bg-sky-700 text-white hover:shadow-lg"
+//               }`}
 //           >
-//             Confirm Order
+//             {loading ? "Placing Order.." : "Confirm Order"}
 //           </button>
 //         </div>
 //       </div>
 //     </div>
 //   );
 // }
-
 
 import React, { useState } from "react";
 import axios from "axios";
@@ -185,7 +201,14 @@ export default function ConfirmModal({
   if (!open) return null;
 
   const handleConfirm = async () => {
-    if (loading) return; // 🔒 Prevent double click
+    if (loading) return; // prevent double click
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("Session expired. Please login again.");
+      return;
+    }
 
     setLoading(true);
 
@@ -205,21 +228,23 @@ export default function ConfirmModal({
           : new Date().toISOString().split("T")[0],
     };
 
-    const token = localStorage.getItem("token");
-
     try {
-      const { data } = await axios.post(
+      const response = await axios.post(
         `${BaseURL}${userOrder}`,
         orderData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
+          timeout: 15000, // 15 sec timeout
         }
       );
 
+      const data = response.data;
+
       if (data?.message === "Order placed") {
-        Swal.fire({
+        await Swal.fire({
           title: "Success!",
           text:
             bookingType === "advance"
@@ -238,32 +263,42 @@ export default function ConfirmModal({
         if (onSuccess) onSuccess();
         onClose();
       } else {
-        Swal.fire({
-          title: "Error",
-          text: "Order failed. Please try again ❌",
-          icon: "error",
-        });
-
-        toast.error("Order failed. Please try again ❌");
+        throw new Error(data?.message || "Order failed");
       }
     } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong! 🚨");
+      console.error("ORDER ERROR FULL:", error);
+
+      if (error.response) {
+        // Server responded with error
+        const status = error.response.status;
+
+        if (status === 401) {
+          toast.error("Session expired. Please login again.");
+        } else {
+          toast.error(
+            error.response.data?.message || "Server error occurred 🚨"
+          );
+        }
+      } else if (error.request) {
+        // No response received
+        toast.error("No response from server. Please try again 🚨");
+      } else {
+        // Something else
+        toast.error("Something went wrong 🚨");
+      }
     } finally {
-      setLoading(false); // ✅ Always stop loader
+      setLoading(false); // always stop loader
     }
   };
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100">
-
         <h2 className="text-2xl font-semibold text-sky-700 mb-4 text-center">
           Confirm Order
         </h2>
 
         <div className="space-y-3 text-gray-700 text-sm">
-
           <div className="flex justify-between">
             <span className="font-medium">Booking Type:</span>
             <span className="capitalize">{bookingType}</span>
@@ -325,7 +360,7 @@ export default function ConfirmModal({
                   : "bg-sky-600 hover:bg-sky-700 text-white hover:shadow-lg"
               }`}
           >
-            {loading ? "Placing Order.." : "Confirm Order"}
+            {loading ? "Placing Order..." : "Confirm Order"}
           </button>
         </div>
       </div>
