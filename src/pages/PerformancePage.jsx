@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BaseURL, getAllOrders } from "../Utills/baseurl";
 import PerformanceChart from "../components/PerfomanceChart";
+import axiosInstance from "../Utills/axiosInstance";
+
 export default function PerformancePage() {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
@@ -13,14 +15,14 @@ export default function PerformancePage() {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(`${BaseURL}${getAllOrders}`, {
+      const res = await axiosInstance.get(`${getAllOrders}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
-      const result = await res.json();
+      const result = res.data;
       setData(result);
     } catch (error) {
       console.error("Failed to load orders:", error);

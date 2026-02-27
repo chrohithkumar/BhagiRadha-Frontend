@@ -1,10 +1,11 @@
 
 
 import React, { useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { BaseURL, userOrder } from "../Utills/baseurl";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import axiosInstance from "../Utills/axiosInstance";
 
 export default function ConfirmModal({
   open,
@@ -55,8 +56,8 @@ export default function ConfirmModal({
   };
 
   try {
-    const response = await axios.post(
-      `${BaseURL}${userOrder}`,
+    const response = await axiosInstance.post(
+      `${userOrder}`,
       orderData,
       {
         headers: {

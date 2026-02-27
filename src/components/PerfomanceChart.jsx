@@ -17,8 +17,9 @@ export default function PerformanceChart({ orders = [] }) {
     if (!orders.length) return [];
 
     const map = {};
-
+    console.log("Grouping orders for performance chart...", orders);
     orders.forEach((order) => {
+      // console.log("Processing order:", order);
       if (!order.createdAt) return;
 
       const date = new Date(order.createdAt);

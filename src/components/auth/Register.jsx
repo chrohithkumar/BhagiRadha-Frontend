@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { BaseURL, userRegister } from "../../Utills/baseurl";
 import { toast, ToastContainer } from "react-toastify";
-
+import axiosInstance from "../../Utills/axiosInstance";
 export default function Register() {
     const navigate = useNavigate();
 
@@ -59,13 +59,12 @@ export default function Register() {
         setLoading(true);
 
         try {
-            const response = await fetch(`${BaseURL}${userRegister}`, {
-                method: "POST",
+            const response = await axiosInstance.post(`${userRegister}`, {
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(form),
+                data: form,
             });
 
-            const data = await response.json();
+            const data = response.data;
 
             if (data.message === "Registration successful") {
                 toast.success("Registration successful! Please login.", { autoClose: 5000 });

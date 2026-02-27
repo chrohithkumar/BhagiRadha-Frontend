@@ -9,7 +9,7 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { BaseURL } from "../Utills/baseurl";
-
+import axiosInstance from "../Utills/axiosInstance";
 /* Fix leaflet marker issue */
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -71,88 +71,104 @@ export default function LocationPicker({
   const [deliveryError, setDeliveryError] = useState("");
 
   /* Main Location Update Function */
-  const updateLocation = async (lat, lng) => {
-    const distance = calculateDistance(
-      DELIVERY_CENTER.lat,
-      DELIVERY_CENTER.lng,
-      lat,
-      lng
+const updateLocation = async (lat, lng) => {
+  const distance = calculateDistance(
+    DELIVERY_CENTER.lat,
+    DELIVERY_CENTER.lng,
+    lat,
+    lng
+  );
+
+  if (distance > DELIVERY_CENTER.radiusKm) {
+    setDeliveryError(
+      `Delivery not available. Selected location is ${distance.toFixed(
+        2
+      )} km away (max ${DELIVERY_CENTER.radiusKm} km).`
+    );
+    return;
+  }
+
+  setDeliveryError("");
+  setPosition([lat, lng]);
+  setUserSelectedCenter([lat, lng]);
+
+  let address = "";
+
+  try {
+    const controller = new AbortController();
+
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, 8000);
+
+    const res = await axiosInstance.get(
+      `location/reverse?lat=${lat}&lon=${lng}`,
+      {
+        signal: controller.signal,
+        headers: { Accept: "application/json" },
+      }
     );
 
-    if (distance > DELIVERY_CENTER.radiusKm) {
-      setDeliveryError(
-        `Delivery not available. Selected location is ${distance.toFixed(
-          2
-        )} km away (max ${DELIVERY_CENTER.radiusKm} km).`
-      );
+    clearTimeout(timeoutId);
+
+    const data = res.data;
+    address = data?.display_name || "";
+    setDisplayName(address);
+
+  } catch (err) {
+    console.error("Reverse geocoding failed:", err);
+
+    if (err.response?.status === 401) {
+      localStorage.clear();
+      window.location.href = "/login";
       return;
     }
 
-    setDeliveryError("");
-
-    setPosition([lat, lng]);
-    setUserSelectedCenter([lat, lng]);
-
-    let address = "";
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-      const res = await fetch(
-        `${BaseURL}location/reverse?lat=${lat}&lon=${lng}`,
-        {
-          signal: controller.signal,
-          headers: { Accept: "application/json" },
-        }
-      );
-
-      clearTimeout(timeoutId);
-
-      if (!res.ok) throw new Error("Reverse geocoding failed");
-
-      const data = await res.json();
-      address = data.display_name || "";
-      setDisplayName(address);
-    } catch (err) {
-      console.error("Reverse geocoding failed:", err);
-      setDisplayName("");
+    if (err.code === "ERR_CANCELED") {
+      console.log("Reverse request timed out");
     }
 
-    onLocationSelect({ lat, lng, address });
-  };
+    setDisplayName("");
+  }
+
+  onLocationSelect({ lat, lng, address });
+};
 
   /* Address Search */
-  const handleAddressSearch = async () => {
-    if (!searchAddress.trim()) return;
+const handleAddressSearch = async () => {
+  if (!searchAddress.trim()) return;
 
-    try {
-      setSearchLoading(true);
+  try {
+    setSearchLoading(true);
+    setDeliveryError(""); // clear old error
 
-      const response = await fetch(
-        `${BaseURL}location/search?query=${encodeURIComponent(searchAddress)}`
-      );
+    const response = await axiosInstance.get(
+      `location/search?query=${encodeURIComponent(searchAddress)}`
+    );
 
-      if (!response.ok) {
-        throw new Error("Search request failed");
-      }
+    const data = response.data;
 
-      const data = await response.json();
+    if (data && data.length > 0) {
+      const lat = parseFloat(data[0].lat);
+      const lng = parseFloat(data[0].lon);
 
-      if (data && data.length > 0) {
-        const lat = parseFloat(data[0].lat);
-        const lng = parseFloat(data[0].lon);
-        await updateLocation(lat, lng);
-      } else {
-        setDeliveryError("Address not found within delivery area.");
-      }
-    } catch (error) {
-      console.error("Address search failed:", error);
-      setDeliveryError("Search failed. Try again.");
-    } finally {
-      setSearchLoading(false);
+      await updateLocation(lat, lng);
+    } else {
+      setDeliveryError("Address not found within delivery area.");
     }
-  };
+  } catch (error) {
+    console.error("Address search failed:", error);
+
+    if (error.response?.status === 401) {
+      localStorage.clear();
+      window.location.href = "/login";
+    } else {
+      setDeliveryError("Search failed. Try again.");
+    }
+  } finally {
+    setSearchLoading(false);
+  }
+};
 
   const handleAutoDetect = () => {
     if (!navigator.geolocation) return;

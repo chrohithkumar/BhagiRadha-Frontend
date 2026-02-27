@@ -1,121 +1,11 @@
-// import { MapContainer, TileLayer, Marker, Polyline, useMap } from "react-leaflet";
-// import { useEffect, useState } from "react";
-// import { useLocation, useNavigate } from "react-router-dom";
-// import L from "leaflet";
 
-// // Component to auto move map when admin moves
-// function RecenterMap({ lat, lng }) {
-//   const map = useMap();
-
-//   useEffect(() => {
-//     if (lat && lng) {
-//       map.setView([lat, lng]);
-//     }
-//   }, [lat, lng, map]);
-
-//   return null;
-// }
-
-// export default function TrackLocation() {
-//   const { state } = useLocation();
-//   const navigate = useNavigate(); // ✅ For back navigation
-//   const userLat = state?.userLat;
-//   const userLng = state?.userLng;
-
-//   const [adminLocation, setAdminLocation] = useState(null);
-//   const [routeCoords, setRouteCoords] = useState([]);
-
-//   // ✅ Get Admin Live Location
-//   useEffect(() => {
-//     const watchId = navigator.geolocation.watchPosition(
-//       (pos) => {
-//         setAdminLocation({
-//           lat: pos.coords.latitude,
-//           lng: pos.coords.longitude,
-//         });
-//       },
-//       (err) => console.log(err),
-//       { enableHighAccuracy: true }
-//     );
-
-//     return () => navigator.geolocation.clearWatch(watchId);
-//   }, []);
-
-//   // ✅ Fetch Route from OSRM every 8 seconds
-//   useEffect(() => {
-//     if (!adminLocation || !userLat || !userLng) return;
-
-//     const interval = setInterval(() => {
-//       const url = `https://router.project-osrm.org/route/v1/driving/${adminLocation.lng},${adminLocation.lat};${userLng},${userLat}?overview=full&geometries=geojson`;
-
-//       fetch(url)
-//         .then((res) => res.json())
-//         .then((data) => {
-//           if (data.routes && data.routes.length > 0) {
-//             const coords = data.routes[0].geometry.coordinates.map((c) => [
-//               c[1],
-//               c[0],
-//             ]);
-//             setRouteCoords(coords);
-//           }
-//         })
-//         .catch((err) => console.log("Route error:", err));
-//     }, 8000);
-
-//     return () => clearInterval(interval);
-//   }, [adminLocation, userLat, userLng]);
-
-//   if (!adminLocation) return <div>Getting admin location...</div>;
-
-//   return (
-//     <div style={{ position: "relative", height: "100vh", width: "100%" }}>
-//       {/* ✅ Back Button */}
-//       <button
-//         onClick={() => navigate(-1)} // go back to previous page
-//         style={{
-//           position: "absolute",
-//           top: 10,
-//           left: 10,
-//           zIndex: 1000,
-//           padding: "8px 12px",
-//           background: "white",
-//           borderRadius: "6px",
-//           border: "1px solid #ccc",
-//           boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-//         }}
-//       >
-//         ← Back
-//       </button>
-
-//       <MapContainer
-//         center={[adminLocation.lat, adminLocation.lng]}
-//         zoom={15}
-//         style={{ height: "100%", width: "100%" }}
-//       >
-//         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-//         {/* Auto Follow Admin */}
-//         <RecenterMap lat={adminLocation.lat} lng={adminLocation.lng} />
-
-//         {/* Admin Marker */}
-//         <Marker position={[adminLocation.lat, adminLocation.lng]} />
-
-//         {/* User Marker */}
-//         <Marker position={[userLat, userLng]} />
-
-//         {/* Route Line */}
-//         {routeCoords.length > 0 && <Polyline positions={routeCoords} color="blue" />}
-//       </MapContainer>
-//     </div>
-//   );
-// }
 import { MapContainer, TileLayer, Marker, Polyline, useMap } from "react-leaflet";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom"; // Added useLocation
 import { BaseURL } from "../Utills/baseurl";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
+import axiosInstance from "../Utills/axiosInstance";
 // Fix Leaflet default marker issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -169,10 +59,10 @@ export default function TrackLocation() {
       if (!userLocation) setStatusMessage(`Fetching location for Order #${orderId}...`);
       
       try {
-        const res = await fetch(`${BaseURL}location/order-location/${orderId}`);
+        const res = await axiosInstance.get(`location/order-location/${orderId}`);
         if (!res.ok) throw new Error(`API Error: ${res.statusText}`);
         
-        const data = await res.json();
+        const data = res.data;
         
         if (!data.lat || !data.lng) throw new Error("Invalid location data");
 
@@ -228,8 +118,8 @@ export default function TrackLocation() {
     const fetchRoute = async () => {
       try {
         const url = `https://router.project-osrm.org/route/v1/driving/${adminLocation.lng},${adminLocation.lat};${userLocation.lng},${userLocation.lat}?overview=full&geometries=geojson`;
-        const res = await fetch(url);
-        const data = await res.json();
+        const res = await axiosInstance.get(url);
+        const data = res.data;
 
         if (data?.routes?.length > 0) {
           const coords = data.routes[0].geometry.coordinates.map((c) => [c[1], c[0]]);

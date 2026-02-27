@@ -1,6 +1,8 @@
 import { useState, useEffect, use } from "react";
 import { BaseURL, getAllOrders, orderupdatedstatus } from "../Utills/baseurl";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../Utills/axiosInstance";
+
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 export default function AllOrders() {
@@ -31,11 +33,11 @@ export default function AllOrders() {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(`${BaseURL}${getAllOrders}`, {
+      const res = await axiosInstance.get(`${getAllOrders}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const result = await res.json();
+      const result = res.data;
       setData(result);
     } catch (err) {
       console.error("Failed to load orders", err);
@@ -45,10 +47,12 @@ export default function AllOrders() {
   /* ================= UPDATE STATUS ================= */
 
 
-  const updateStatus = async (id, status, name) => {
-    if (status === "Completed") {
+  const updateStatus = async (id, statusText, name) => {
+    let status;
+
+    if (statusText === "Completed") {
       status = 1;
-    } else if (status === "Cancelled") {
+    } else if (statusText === "Cancelled") {
       status = 2;
     } else {
       toast.error("Invalid status");
@@ -58,47 +62,54 @@ export default function AllOrders() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch(
-        `${BaseURL}${orderupdatedstatus}${id}`,
+      const response = await axiosInstance.put(
+        `${orderupdatedstatus}${id}`,
+        status,   // ✅ sending raw number
         {
-          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(status),
         }
       );
+      const data = response.data;
 
-      const data = await response.json(); // ✅ THIS WAS MISSING
-
-      if (response.ok && data.message === "Status updated successfully") {
+      // ✅ No response.ok in axios
+      if (data?.message === "Status updated successfully") {
 
         if (status === 1) {
-
-          Swal.fire({
+          await Swal.fire({
             title: "Status updated successfully",
             text: `${name} order has completed`,
-            icon: "success"
+            icon: "success",
           });
           toast.success(`${name} order has completed`);
-        } else if (status === 2) {
-          Swal.fire({
+        }
+
+        if (status === 2) {
+          await Swal.fire({
             title: "Status updated successfully",
             text: `${name} order has cancelled`,
-            icon: "success"
+            icon: "success",
           });
           toast.error(`${name} order has cancelled`);
         }
 
         loadOrders();
       } else {
-        toast.error(data.message || "Failed to update status");
+        toast.error(data?.message || "Failed to update status");
       }
 
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong");
+
+      if (error.response?.status === 401) {
+        localStorage.clear();
+        window.location.href = "/login";
+        return;
+      }
+
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
   /* ================= FILTER ================= */

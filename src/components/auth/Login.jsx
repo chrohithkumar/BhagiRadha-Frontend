@@ -4,7 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Eye, EyeOff } from "lucide-react";
 import { BaseURL, userLogin } from "../../Utills/baseurl";
-
+import axiosInstance from "../../Utills/axiosInstance";
 export default function Login() {
     const navigate = useNavigate();
 
@@ -49,13 +49,11 @@ useEffect(() => {
 
         setLoading(true); // start loader
         try {
-            const response = await fetch(`${BaseURL}${userLogin}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mobile, password }),
+            const response = await axiosInstance.post(`${userLogin}`, {
+                mobile, password ,
             });
 
-            const data = await response.json();
+            const data = response.data;
 
 
             if (data.message === "Login successful") {

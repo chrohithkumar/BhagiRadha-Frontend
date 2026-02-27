@@ -76,7 +76,7 @@ export default function AdvanceBookingModal({ open,onClose }) {
 
     return (
         <>
-            <div className="fixed inset-0 z-[9999] bg-black bg-opacity-40 flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-[1000] bg-black bg-opacity-40 flex items-center justify-center p-4">
                 <div className="bg-white rounded-2xl shadow-lg w-full max-w-lg p-6 relative overflow-y-auto max-h-[90vh]">
 
                     <h2 className="text-2xl font-bold text-sky-700 mb-6">

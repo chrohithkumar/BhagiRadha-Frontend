@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Download, ChevronLeft, ChevronRight } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import axiosInstance from "../Utills/axiosInstance";
 
 export default function UserManagement() {
     const [mobile, setMobile] = useState("");
@@ -26,14 +27,13 @@ export default function UserManagement() {
         const token = localStorage.getItem("token");
         setLoading(true);
         try {
-            const ordersRes = await fetch(`${BaseURL}${ordersByMobile}=${mobile}`, {
+            const ordersRes = await axiosInstance.get(`${ordersByMobile}=${mobile}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
             });
-            if (!ordersRes.ok) throw new Error("Failed to fetch orders");
-            let orderData = await ordersRes.json();
+            let orderData = ordersRes.data;
             setUser(orderData);
             
             // Apply filters frontend
@@ -54,31 +54,35 @@ export default function UserManagement() {
         }
     };
 
-    const toggleStatus = async (mobileNumber, status) => {
-        try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${BaseURL}${updateuseractivestatus}${mobileNumber}`, {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(status),
-            });
+  const toggleStatus = async (mobileNumber, status) => {
+  try {
+    const token = localStorage.getItem("token");
 
-            if (res.ok) {
-                const result = await res.json();
-                toast.success(result.message);
-                fetchUserAndOrders(); 
-            } else {
-                const errorData = await res.json();
-                toast.error(errorData.message || "Failed to update status");
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            toast.error("Something went wrong");
-        }
-    };
+    const res = await axiosInstance.put(
+      `${updateuseractivestatus}${mobileNumber}`,
+      status, // ✅ send direct number only
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (res.status === 200) {
+      toast.success(res.data.message);
+      fetchUserAndOrders();
+    } else {
+      toast.error(res.data.message || "Failed to update status");
+    }
+
+  } catch (error) {
+    console.error("Error:", error);
+    toast.error(
+      error.response?.data?.message || "Something went wrong"
+    );
+  }
+};
 
     const handleLogout = () => {
         localStorage.clear();

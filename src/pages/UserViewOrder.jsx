@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BaseURL, ordersByMobile } from "../Utills/baseurl";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../Utills/axiosInstance";
 
 export default function OrderHistory() {
   const [orders, setOrders] = useState([]);
@@ -18,52 +19,56 @@ export default function OrderHistory() {
   const navigate = useNavigate();
   const mobileNumber = localStorage.getItem("userMobile");
 
-  const fetchOrders = async () => {
-    if (!mobileNumber) return;
-    const token = localStorage.getItem("token");
-    console.log(token);
-    setLoading(true);
-    try {
-      const res = await fetch(`${BaseURL}${ordersByMobile}=${mobileNumber}`, {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) throw new Error("Failed to fetch orders");
-      let data = await res.json();
+const fetchOrders = async () => {
+  if (!mobileNumber) return;
 
-      if (fromDate)
-        data = data.filter(
-          (o) =>
-            new Date(o.createdAt).toISOString().split("T")[0] >= fromDate
-        );
+  const token = localStorage.getItem("token");
+  setLoading(true);
 
-      if (toDate)
-        data = data.filter(
-          (o) =>
-            new Date(o.createdAt).toISOString().split("T")[0] <= toDate
-        );
+  try {
+    const res = await axiosInstance.get(
+      `${ordersByMobile}=${mobileNumber}`
+    );
 
+    let data = res.data; // axios already gives parsed data
 
-      if (bookingTypeFilter !== "All")
-        data = data.filter(
-          (o) => o.bookingType.toLowerCase() === bookingTypeFilter
-        );
+    console.log("Fetched Orders:", data);
 
+    if (fromDate)
+      data = data.filter(
+        (o) =>
+          new Date(o.createdAt).toISOString().split("T")[0] >= fromDate
+      );
 
-      if (statusFilter !== "All")
-        data = data.filter((o) => o.status == statusFilter);
+    if (toDate)
+      data = data.filter(
+        (o) =>
+          new Date(o.createdAt).toISOString().split("T")[0] <= toDate
+      );
 
-      setOrders(data);
-      setCurrentPage(1); // reset page on filter change
-    } catch (err) {
-      console.error(err);
+    if (bookingTypeFilter !== "All")
+      data = data.filter(
+        (o) => o.bookingType?.toLowerCase() === bookingTypeFilter
+      );
+
+    if (statusFilter !== "All")
+      data = data.filter((o) => o.status == statusFilter);
+
+    setOrders(data);
+    setCurrentPage(1);
+  } catch (err) {
+    console.error("FETCH ORDER ERROR:", err);
+
+    if (err.response?.status === 401) {
+      localStorage.clear();
+      window.location.href = "/login";
+    } else {
       toast.error("Failed to load orders");
-    } finally {
-      setLoading(false);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchOrders();

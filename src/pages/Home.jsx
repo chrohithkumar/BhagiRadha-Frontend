@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { PhoneCall } from 'lucide-react';
 import AdvanceBookingModal from "../pages/AdvanceBookingModal";
-
 // 🌍 Plant Location
 const PLANT_LAT = 16.531837;
 const PLANT_LON = 81.973862;

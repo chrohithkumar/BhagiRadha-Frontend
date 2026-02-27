@@ -4,6 +4,7 @@ import { BaseURL, getAllOrders, orderupdatedstatus } from "../Utills/baseurl";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import axiosInstance from "../Utills/axiosInstance";
 import notificationsound from "../assests/notification.mp3";
 export default function AdminDashboard() {
   const [data, setData] = useState([]);
@@ -17,40 +18,40 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const prevLastIdRef = useRef(null);
   const isFirstLoad = useRef(true);
-  // useEffect(() => {
-  //   const fetchOrders = async () => {
-  //     try {
-  //       const response = await orderApi();
-  //       const orders = response.data;
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await orderApi();
+        const orders = response.data;
 
-  //       if (orders && orders.length > 0) {
-  //         // Sort by latest (important if API not sorted)
-  //         const sortedOrders = [...orders].sort(
-  //           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  //         );
+        if (orders && orders.length > 0) {
+          // Sort by latest (important if API not sorted)
+          const sortedOrders = [...orders].sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
 
-  //         const latestOrder = sortedOrders[0];
-  //         const latestId = latestOrder.id;
+          const latestOrder = sortedOrders[0];
+          const latestId = latestOrder.id;
 
-  //         if (!isFirstLoad.current && latestId !== prevLastIdRef.current) {
-  //           playNotificationSound(); // 🔔 play sound here
-  //         }
+          if (!isFirstLoad.current && latestId !== prevLastIdRef.current) {
+            playNotificationSound(); // 🔔 play sound here
+          }
 
-  //         prevLastIdRef.current = latestId;
-  //         isFirstLoad.current = false;
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching orders:", error);
-  //     }
-  //   };
+          prevLastIdRef.current = latestId;
+          isFirstLoad.current = false;
+        }
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
 
-  //   fetchOrders();
+    fetchOrders();
 
-  //   // If you are polling:
-  //   const interval = setInterval(fetchOrders, 5000); // every 5 sec
+    // If you are polling:
+    const interval = setInterval(fetchOrders, 5000); // every 5 sec
 
-  //   return () => clearInterval(interval);
-  // }, []);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     loadOrders();
@@ -66,14 +67,14 @@ export default function AdminDashboard() {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(`${BaseURL}${getAllOrders}`, {
+      const res = await axiosInstance.get(`${getAllOrders}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
-      const result = await res.json();
+      const result = res.data;
       const today = new Date().toISOString().split("T")[0];
 
       const todayOrders = result.filter(
@@ -107,63 +108,60 @@ export default function AdminDashboard() {
   };
 
 
-  const updateStatus = async (id, status, name) => {
-    if (status === "Completed") {
-      status = 1;
-    } else if (status === "Cancelled") {
-      status = 2;
-    } else {
-      toast.error("Invalid status");
-      return;
-    }
+ const updateStatus = async (id, status, name) => {
+  if (status === "Completed") {
+    status = 1;
+  } else if (status === "Cancelled") {
+    status = 2;
+  } else {
+    toast.error("Invalid status");
+    return;
+  }
 
-    try {
-      const token = localStorage.getItem("token");
+  try {
+    const token = localStorage.getItem("token");
 
-      const response = await fetch(
-        `${BaseURL}${orderupdatedstatus}${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(status),
-        }
-      );
+    const response = await axiosInstance.put(
+      `${orderupdatedstatus}${id}`,
+      status, // ✅ send direct number
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-      const data = await response.json(); // ✅ THIS WAS MISSING
+    const data = response.data;
 
-      if (response.ok && data.message === "Status updated successfully") {
+    if (response.status === 200 && data.message === "Status updated successfully") {
 
-        if (status === 1) {
-
-          Swal.fire({
-            title: "Status updated successfully",
-            text: `${name} order has completed`,
-            icon: "success"
-          });
-          toast.success(`${name} order has completed`);
-        } else if (status === 2) {
-          Swal.fire({
-            title: "Status updated successfully",
-            text: `${name} order has cancelled`,
-            icon: "success"
-          });
-          toast.error(`${name} order has cancelled`);
-        }
-
-        loadOrders();
-      } else {
-        toast.error(data.message || "Failed to update status");
+      if (status === 1) {
+        Swal.fire({
+          title: "Status updated successfully",
+          text: `${name} order has completed`,
+          icon: "success",
+        });
+        toast.success(`${name} order has completed`);
+      } else if (status === 2) {
+        Swal.fire({
+          title: "Status updated successfully",
+          text: `${name} order has cancelled`,
+          icon: "success",
+        });
+        toast.error(`${name} order has cancelled`);
       }
 
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong");
+      loadOrders();
+    } else {
+      toast.error(data.message || "Failed to update status");
     }
-  };
 
+  } catch (error) {
+    console.error(error);
+    toast.error("Something went wrong");
+  }
+};
 
   const handleLogout = () => {
     localStorage.clear();
