@@ -51,37 +51,36 @@ export default function Register() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        if (!validate()) return;
+    if (!validate()) return;
 
-        setLoading(true);
+    setLoading(true);
 
-        try {
-            const response = await axiosInstance.post(`${userRegister}`, {
-                headers: { "Content-Type": "application/json" },
-                data: form,
-            });
+    try {
+        const response = await axiosInstance.post(userRegister, form, {
+            headers: { "Content-Type": "application/json" }
+        });
 
-            const data = response.data;
+        const data = response.data;
 
-            if (data.message === "Registration successful") {
-                toast.success("Registration successful! Please login.", { autoClose: 5000 });
+        if (data.message === "Registration successful") {
+            toast.success("Registration successful! Please login.", { autoClose: 5000 });
 
-                setTimeout(() => {
-                    navigate("/login");
-                }, 2000);
-            } else {
-                toast.error(data.message || "Registration failed", { autoClose: 5000 });
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error("Something went wrong. Try again.");
-        } finally {
-            setLoading(false);
+            setTimeout(() => {
+                navigate("/login");
+            }, 2000);
+        } else {
+            toast.error(data.message || "Registration failed", { autoClose: 5000 });
         }
-    };
+    } catch (err) {
+        console.error(err);
+        toast.error("Something went wrong. Try again.");
+    } finally {
+        setLoading(false);
+    }
+};
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 via-cyan-300 to-blue-600">
